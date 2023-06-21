@@ -17,8 +17,6 @@ public interface FreeBoardDAO {
     public void updateViewCnt(int bNo);
     public List<FreeBoardVO> getNoticeList();
     public int updateNoticeYn(int bNo, String bNoticeYn);
-    
-    // 추가된 메소드
     public boolean hasReplies(int bNo);
     public int getParentDepthNo(int bNo);
     public int getMaxBgno(int bNo);

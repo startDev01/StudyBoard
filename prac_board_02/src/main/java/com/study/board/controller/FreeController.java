@@ -78,7 +78,8 @@ public class FreeController {
         model.addAttribute("freeBoard", freeBoard);
         return "board/edit";
     }
-
+    
+//	게시물 삭제
     @RequestMapping("/test/delete.do")
     public String boardDelete(@ModelAttribute("freeBoard") FreeBoardVO freeBoard) {
         freeBoardDAO.deleteBoard(freeBoard);
@@ -107,7 +108,7 @@ public class FreeController {
     @PostMapping("/test/reform.do")
     public String boardRewrite(Model model, @RequestParam(defaultValue="0") int bNo) {
         if (bNo == 0) {
-            return "redirect:list";
+            return "redirect:/test/list.do";
         }
         model.addAttribute("bNo", bNo);
         return "board/reform";

@@ -21,55 +21,89 @@ public class FreeBoardService {
         this.sqlSessionTemplate = sqlSessionTemplate;
     }
 
-    public void updateViewCnt(int bNo) throws Exception {
-        sqlSessionTemplate.update("com.study.board.dao.FreeBoardDAO.updateViewCnt", bNo);
-    }
-  
+    /**
+     * °Ô½Ã¹° ¸ñ·Ï Á¶È¸ ¸Ş¼Òµå
+     * 
+     * @return °Ô½Ã¹° ¸ñ·Ï
+     * @throws Exception
+     */
     public List<FreeBoardVO> getBoardList() throws Exception {
         List<FreeBoardVO> boardList = freeBoardDAO.getBoardList();
         for (FreeBoardVO board : boardList) {
             if ("Y".equals(board.getbNoticeYn())) {
-                board.setbCategory("ê³µì§€");
+                board.setbCategory("°øÁö");
             }
         }
         return boardList;
     }
     
+    /**
+     * °øÁö»çÇ× Á¶È¸ ¸Ş¼Òµå
+     * 
+     * @param bNo °Ô½Ã¹° ¹øÈ£
+     * @return °øÁö»çÇ×
+     * @throws Exception
+     */
     public FreeBoardVO getNotice(int bNo) throws Exception {
         FreeBoardVO board = freeBoardDAO.getBoard(bNo);
         if (board != null && "Y".equals(board.getbNoticeYn())) {
-            board.setbCategory("ê³µì§€");
+            board.setbCategory("°øÁö");
         }
         return board;
     }
     
+    /**
+     * Á¶È¸¼ö ¾÷µ¥ÀÌÆ® ¸Ş¼Òµå
+     * 
+     * @param bNo °Ô½Ã¹° ¹øÈ£
+     * @throws Exception
+     */
+    public void updateViewCnt(int bNo) throws Exception {
+        sqlSessionTemplate.update("com.study.board.dao.FreeBoardDAO.updateViewCnt", bNo);
+    }
+    
+    /**
+     * °øÁö»çÇ× ¸ñ·Ï Á¶È¸ ¸Ş¼Òµå
+     * 
+     * @return °øÁö»çÇ× ¸ñ·Ï
+     * @throws Exception
+     */
     public List<FreeBoardVO> getNoticeList() throws Exception {
         return freeBoardDAO.getNoticeList();
     }
     
+    /**
+     * °øÁö»çÇ× ¿©ºÎ ¾÷µ¥ÀÌÆ® ¸Ş¼Òµå
+     * 
+     * @param bNo         °Ô½Ã¹° ¹øÈ£
+     * @param bNoticeYn   °øÁö»çÇ× ¿©ºÎ (Y/N)
+     * @return ¾÷µ¥ÀÌÆ®µÈ Çà ¼ö
+     * @throws Exception
+     */
     public int updateNoticeYn(int bNo, String bNoticeYn) throws Exception {
         return freeBoardDAO.updateNoticeYn(bNo, bNoticeYn);
     }
     
+    /**
+     * °Ô½Ã¹° ¼öÁ¤ ¸Ş¼Òµå
+     * 
+     * @param freeBoard ¼öÁ¤ÇÒ °Ô½Ã¹° Á¤º¸
+     * @return ¾÷µ¥ÀÌÆ®µÈ Çà ¼ö
+     */
     public int boardReform(FreeBoardVO freeBoard) {
-        // 1. ë¶€ëª¨ ê²Œì‹œë¬¼ì— ë‹µë³€ê¸€ì´ ì´ë¯¸ ë‹¬ë ¤ìˆëŠ”ì§€ í™•ì¸í•©ë‹ˆë‹¤.
         boolean hasReplies = freeBoardDAO.hasReplies(freeBoard.getbNo());
 
-        // 2. ì´ë¯¸ ë‹µë³€ê¸€ì´ ë‹¬ë ¤ìˆëŠ” ê²½ìš°, ìƒˆë¡œìš´ ë‹µë³€ê¸€ì˜ ê³„ì¸µ ë²ˆí˜¸ë¥¼ ì¦ê°€ì‹œí‚µë‹ˆë‹¤.
         if (hasReplies) {
             int parentDepthNo = freeBoardDAO.getParentDepthNo(freeBoard.getbNo());
             freeBoard.setbDepthNo(parentDepthNo + 1);
         }
         
-        // 3. ë¶€ëª¨ ê²Œì‹œë¬¼ì˜ ê°€ì¥ í° ê·¸ë£¹ ë²ˆí˜¸ë¥¼ ê°€ì ¸ì˜µë‹ˆë‹¤.
         int maxBgno = freeBoardDAO.getMaxBgno(freeBoard.getbNo());
         freeBoard.setbGNo(maxBgno + 1);
-        
-        // 4. ìƒˆë¡œìš´ ë‹µë³€ê¸€ì˜ fkseq(ì™¸ë˜ í‚¤ ìˆœì„œ)ë¥¼ ë¶€ëª¨ ê²Œì‹œë¬¼ì˜ fkseqì— ê¸°ë°˜í•˜ì—¬ ì„¤ì •í•©ë‹ˆë‹¤.
+
         int parentFkSeq = freeBoardDAO.getFkSeq(freeBoard.getbNo());
         freeBoard.setbFkSeq(parentFkSeq);
         
-        // 5. DAO ë©”ì†Œë“œë¥¼ í˜¸ì¶œí•˜ì—¬ ë‹µë³€ê¸€ì„ ë“±ë¡í•©ë‹ˆë‹¤.
         return freeBoardDAO.boardReform(freeBoard);
     }
 }
