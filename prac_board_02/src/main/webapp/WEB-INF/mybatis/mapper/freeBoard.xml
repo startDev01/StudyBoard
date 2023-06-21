@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.study.board.dao.FreeBoardDAO">
+
+	<!-- 게시판 목록 출력 / 공지글 포함 -->
+	<select id="getBoardList"
+		resultType="com.study.board.vo.FreeBoardVO">
+		SELECT ROW_NUMBER() OVER (ORDER BY b_no DESC) AS row_number
+		, b_no, b_title, b_category, b_writer
+		, b_content, b_hit
+		,
+		to_char(b_reg_date, 'YYYY-MM-DD') AS b_reg_date
+		,
+		to_char(b_mod_date,'YYYY-MM-DD') AS b_mod_date
+		, b_del_yn, b_notice_yn
+		FROM free_board
+		WHERE b_del_yn='N'
+		ORDER BY b_no DESC, b_notice_yn DESC
+	</select>
+
+	<!-- 특정 게시물 -->
+	<select id="getBoard"
+		resultType="com.study.board.vo.FreeBoardVO" parameterType="int">
+		SELECT b_no
+		, b_title, b_category, b_writer
+		, b_pass, b_content, b_hit
+		,
+		to_char(b_reg_date, 'YYYY-MM-DD') AS b_reg_date
+		, to_char(b_mod_date,
+		'YYYY-MM-DD') AS b_mod_date
+		, b_del_yn, b_notice_yn
+		FROM free_board
+		WHERE b_no=#{bNo}
+	</select>
+
+	<!-- 개시물 정보 업데이트 -->
+	<update id="updateBoard"
+		parameterType="com.study.board.vo.FreeBoardVO">
+		UPDATE free_board SET
+		b_title=#{bTitle}
+		,b_category=#{bCategory}
+		,b_content=#{bContent}
+		,b_mod_date=sysdate
+		WHERE b_no=#{bNo}
+	</update>
+
+	<!-- 게시물 삭제 -->
+	<update id="deleteBoard"
+		parameterType="com.study.board.vo.FreeBoardVO">
+		UPDATE free_board SET
+		b_del_yn='Y'
+		WHERE b_no=#{bNo}
+	</update>
+
+	<!-- 게시물 등록 -->
+	<insert id="insertBoard" parameterType="com.study.board.vo.FreeBoardVO">
+		INSERT INTO free_board (
+			b_no, b_title, b_category, b_writer, b_pass, b_content, b_hit,
+			b_reg_date, b_mod_date, b_del_yn, b_notice_yn, b_gno, b_fk_seq, b_depthno
+		) VALUES (
+			seq_free_board.nextval, #{bTitle, jdbcType=VARCHAR},
+			#{bCategory, jdbcType=VARCHAR},
+			#{bWriter, jdbcType=VARCHAR}, #{bPass, jdbcType=VARCHAR},
+			#{bContent, jdbcType=VARCHAR}, 0, SYSDATE, null, 'N',
+			#{bNoticeYn, jdbcType=CHAR},
+			CASE WHEN #{bGNo, jdbcType=VARCHAR} IS NULL THEN seq_free_board.currval ELSE #{bGNo, jdbcType=VARCHAR} END,
+			CASE WHEN #{bFkSeq, jdbcType=VARCHAR} IS NULL THEN 0 ELSE #{bFkSeq, jdbcType=VARCHAR} END,
+			CASE WHEN #{bDepthNo, jdbcType=VARCHAR} IS NULL THEN 0 ELSE #{bDepthNo, jdbcType=VARCHAR} END
+		)
+	</insert>
+
+	<!-- 조회수 -->
+	<update id="updateViewCnt"
+		parameterType="com.study.board.vo.FreeBoardVO">
+		UPDATE free_board
+		SET b_hit = b_hit + 1
+		where b_no =
+		#{bNo}
+	</update>
+
+</mapper>

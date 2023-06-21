@@ -1,0 +1,106 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>${freeBoard.bTitle}</title>
+<style>
+body {
+	font-family: Arial, sans-serif;
+	margin: 0;
+	padding: 20px;
+}
+
+.container {
+	max-width: 800px;
+	margin: 0 auto;
+	padding: 20px;
+	background-color: #f9f9f9;
+	border: 1px solid #ccc;
+}
+
+h1 {
+	font-size: 24px;
+	font-weight: bold;
+	margin-bottom: 10px;
+}
+
+.meta {
+	font-size: 14px;
+	color: #666;
+	margin-bottom: 20px;
+}
+
+.content {
+	font-size: 16px;
+	line-height: 1.5;
+	margin-bottom: 20px;
+}
+
+.buttons {
+	display: flex;
+	justify-content: flex-end;
+	margin-top: 20px;
+}
+
+.buttons a {
+	display: inline-block;
+	padding: 10px 20px;
+	background-color: #333;
+	color: #fff;
+	text-decoration: none;
+	border-radius: 4px;
+	margin-right: 10px;
+}
+
+.buttons a:first-child {
+	margin-left: 0;
+}
+
+.notice-label {
+	display: inline-block;
+	padding: 4px 8px;
+	background-color: #ffdd57;
+	color: #333;
+	font-weight: bold;
+	border-radius: 4px;
+}
+</style>
+<script>
+	function submitForm(url) {
+		const form = document.createElement('form');
+		form.method = 'POST';
+		form.action = url;
+		form.style.display = 'none';
+		document.body.appendChild(form);
+		form.submit();
+	}
+</script>
+</head>
+<body>
+	<div class="container">
+		<h1>
+			${freeBoard.bTitle}
+			<c:if test="${freeBoard.bNoticeYn}">
+				<span class="notice-label">공지</span>
+			</c:if>
+		</h1>
+		<p class="meta">작성자: ${freeBoard.bWriter} | 등록일:
+			${freeBoard.bRegDate} | 조회수: ${freeBoard.bHit} | 글분류:
+			${freeBoard.bCategory}</p>
+		<div class="content">
+			<pre>${freeBoard.bContent}</pre>
+		</div>
+		        <div class="buttons">
+            <a href="javascript:void(0);" onclick="submitForm('edit.do?bNo=${freeBoard.bNo}')">수정</a>
+            <a href="javascript:void(0);" onclick="submitForm('reform.do?bNo=${freeBoard.bNo}')">답글</a>
+            <div style="margin-left: auto;">
+                <a href="list.do">목록</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
