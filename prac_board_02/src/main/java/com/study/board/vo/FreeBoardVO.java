@@ -18,8 +18,8 @@ public class FreeBoardVO {
 	private String bModDate;
 	private String bDelYn;
 	private String bNoticeYn;
-	private String parentNo;	//답글 번호
-	private String depth;		//답글 생성시 들여쓰기
+	private String parentNo;	
+	private String depth;		
 
 	public String getParentNo() {
 		return parentNo;
