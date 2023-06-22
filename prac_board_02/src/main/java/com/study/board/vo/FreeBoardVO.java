@@ -18,10 +18,24 @@ public class FreeBoardVO {
 	private String bModDate;
 	private String bDelYn;
 	private String bNoticeYn;
+	private String parentNo;	//답글 번호
+	private String depth;		//답글 생성시 들여쓰기
 
-	private int bGNo;
-	private int bFkSeq;
-	private int bDepthNo;
+	public String getParentNo() {
+		return parentNo;
+	}
+
+	public void setParentNo(String parentNo) {
+		this.parentNo = parentNo;
+	}
+
+	public String getDepth() {
+		return depth;
+	}
+
+	public void setDepth(String depth) {
+		this.depth = depth;
+	}
 
 	public int getbNo() {
 		return bNo;
@@ -109,30 +123,6 @@ public class FreeBoardVO {
 
 	public void setbNoticeYn(String bNoticeYn) {
 		this.bNoticeYn = bNoticeYn;
-	}
-
-	public int getbGNo() {
-		return bGNo;
-	}
-
-	public void setbGNo(int bGNo) {
-		this.bGNo = bGNo;
-	}
-
-	public int getbFkSeq() {
-		return bFkSeq;
-	}
-
-	public void setbFkSeq(int bFkSeq) {
-		this.bFkSeq = bFkSeq;
-	}
-
-	public int getbDepthNo() {
-		return bDepthNo;
-	}
-
-	public void setbDepthNo(int bDepthNo) {
-		this.bDepthNo = bDepthNo;
 	}
 
 	@Override

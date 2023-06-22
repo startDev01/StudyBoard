@@ -13,12 +13,7 @@ public interface FreeBoardDAO {
     public int updateBoard(FreeBoardVO freeBoard);
     public int deleteBoard(FreeBoardVO freeBoard);
     public int insertBoard(FreeBoardVO freeBoard);
-    public int boardReform(FreeBoardVO freeBoard);
     public void updateViewCnt(int bNo);
     public List<FreeBoardVO> getNoticeList();
     public int updateNoticeYn(int bNo, String bNoticeYn);
-    public boolean hasReplies(int bNo);
-    public int getParentDepthNo(int bNo);
-    public int getMaxBgno(int bNo);
-    public int getFkSeq(int bNo);
 }

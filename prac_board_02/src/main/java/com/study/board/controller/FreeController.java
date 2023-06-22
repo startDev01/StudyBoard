@@ -98,20 +98,17 @@ public class FreeController {
         return "redirect:/test/list.do";
     }
 
+//  답변 게시물 등록
+    @RequestMapping("/test/replyForm.do")
+    public String replyForm(@RequestParam("parentNo") int parentNo, Model model) {
+    	
+    	return ("redirect:/test/list.do");
+    }
+    
 //  게시물 수정본 등록
     @RequestMapping("/test/form.do")
     public String boardForm(@ModelAttribute("freeBoard") FreeBoardVO freeBoard) {
         return "board/form";
-    }
-    
-//  답글 등록  
-    @PostMapping("/test/reform.do")
-    public String boardRewrite(Model model, @RequestParam(defaultValue="0") int bNo) {
-        if (bNo == 0) {
-            return "redirect:/test/list.do";
-        }
-        model.addAttribute("bNo", bNo);
-        return "board/reform";
     }
 
 }
