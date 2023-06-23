@@ -69,17 +69,6 @@ h1 {
 	border-radius: 4px;
 }
 </style>
-<script>
-	function submitForm(url) {
-		const form = document.createElement('form');
-		form.method = 'POST';
-		form.action = url;
-		form.style.display = 'none';
-		document.body.appendChild(form);
-		form.submit();
-	}
-</script>
-</head>
 <body>
 	<div class="container">
 		<h1>
@@ -94,13 +83,11 @@ h1 {
 		<div class="content">
 			<pre>${freeBoard.bContent}</pre>
 		</div>
-		        <div class="buttons">
-            <a href="javascript:void(0);" onclick="submitForm('edit.do?bNo=${freeBoard.bNo}')">수정</a>
-            <a href="javascript:void(0);" onclick="submitForm('reform.do?bNo=${freeBoard.bNo}')">답글</a>
-            <div style="margin-left: auto;">
-                <a href="list.do">목록</a>
-            </div>
-        </div>
-    </div>
+		<div class="buttons">
+			<a href="edit.do?bNo=${freeBoard.bNo}">수정</a> 
+			<a href="replyForm.do?parentNo=${freeBoard.bNo}">답글</a>
+			<a href="list.do">목록</a>
+		</div>
+	</div>
 </body>
 </html>
