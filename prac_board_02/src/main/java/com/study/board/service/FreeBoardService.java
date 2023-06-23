@@ -26,7 +26,7 @@ public class FreeBoardService {
         List<FreeBoardVO> boardList = freeBoardDAO.getBoardList();
         for (FreeBoardVO board : boardList) {
             if ("Y".equals(board.getbNoticeYn())) {
-                board.setbCategory("怨듭�");
+                board.setbCategory("공지");
             }
         }
         return boardList;
@@ -35,9 +35,26 @@ public class FreeBoardService {
     public FreeBoardVO getNotice(int bNo) throws Exception {
         FreeBoardVO board = freeBoardDAO.getBoard(bNo);
         if (board != null && "Y".equals(board.getbNoticeYn())) {
-            board.setbCategory("怨듭�");
+            board.setbCategory("공지");
         }
         return board;
+    }
+    
+    public void insertBoard(FreeBoardVO board, int parentNo) {
+        // 답글의 정보를 새로운 객체에 설정
+        FreeBoardVO replyBoard = new FreeBoardVO();
+        replyBoard.setbTitle(board.getbTitle());
+        replyBoard.setbCategory(board.getbCategory());
+        replyBoard.setbWriter(board.getbWriter());
+        replyBoard.setbPass(board.getbPass());
+        replyBoard.setbContent(board.getbContent());
+        replyBoard.setbNoticeYn(board.getbNoticeYn());
+      
+        // 부모 게시물의 번호 설정
+        replyBoard.setParentNo(parentNo);
+      
+        // 답글 등록 로직 구현
+        freeBoardDAO.insertBoard(replyBoard);
     }
 
     public List<FreeBoardVO> getNoticeList() throws Exception {
@@ -51,6 +68,13 @@ public class FreeBoardService {
     public void updateViewCnt(int bNo) throws Exception {
         sqlSessionTemplate.update("com.study.board.dao.FreeBoardDAO.updateViewCnt", bNo);
     }
-    
+
+    public FreeBoardVO getBoard(int bNo) throws Exception {
+        FreeBoardVO board = freeBoardDAO.getBoard(bNo);
+        if (board != null && "Y".equals(board.getbNoticeYn())) {
+            board.setbCategory("공지");
+        }
+        return board;
+    }
 
 }

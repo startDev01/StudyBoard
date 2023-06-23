@@ -18,14 +18,14 @@ public class FreeBoardVO {
 	private String bModDate;
 	private String bDelYn;
 	private String bNoticeYn;
-	private String parentNo;	
+	private int parentNo;	
 	private String depth;		
 
-	public String getParentNo() {
+	public int getParentNo() {
 		return parentNo;
 	}
 
-	public void setParentNo(String parentNo) {
+	public void setParentNo(int parentNo) {
 		this.parentNo = parentNo;
 	}
 

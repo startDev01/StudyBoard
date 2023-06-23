@@ -85,7 +85,7 @@ h1 {
 		</div>
 		<div class="buttons">
 			<a href="edit.do?bNo=${freeBoard.bNo}">수정</a> 
-			<a href="replyForm.do?bNo=${freeBoard.bNo}">답글</a> 
+			<a href="replyForm.do?parentNo=${freeBoard.bNo}">답글</a>
 			<a href="list.do">목록</a>
 		</div>
 	</div>

@@ -97,12 +97,18 @@ public class FreeController {
         return "redirect:/test/list.do";
     }
 
-//  답변 게시물 등록
     @RequestMapping("/test/replyForm.do")
-    public String replyForm(@RequestParam("parentNo") int parentNo, Model model) {
-    	
-    	return ("redirect:/test/list.do");
+    public String replyForm(@RequestParam(value = "parentNo", required = false) String parentNo, Model model) throws Exception {
+        if (parentNo == null || parentNo.isEmpty()) {
+            return "error-page";
+        }
+
+        int parentId = Integer.parseInt(parentNo);
+        FreeBoardVO parentBoard = freeBoardService.getBoard(parentId);
+        model.addAttribute("parentBoard", parentBoard);
+        return "board/replyForm";
     }
+
     
 //  게시물 수정본 등록
     @RequestMapping("/test/form.do")
