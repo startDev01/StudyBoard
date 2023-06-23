@@ -69,7 +69,7 @@
 <body>
 <div class="container">
     <h2>답글 작성</h2>
-    <form action="replyForm.do" method="post">
+    <form action="submitReply.do" method="post">
         <input type="hidden" name="parentNo" value="${freeBoard.bNo}">
         <table>
             <tr>
