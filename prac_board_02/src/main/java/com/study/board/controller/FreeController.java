@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -98,20 +97,23 @@ public class FreeController {
         return "redirect:/test/list.do";
     }
 
+    @RequestMapping("/test/replyForm.do")
+    public String replyForm(@RequestParam(value = "parentNo", required = false) String parentNo, Model model) throws Exception {
+        if (parentNo == null || parentNo.isEmpty()) {
+            return "error-page";
+        }
+
+        int parentId = Integer.parseInt(parentNo);
+        FreeBoardVO parentBoard = freeBoardService.getBoard(parentId);
+        model.addAttribute("parentBoard", parentBoard);
+        return "board/replyForm";
+    }
+
+    
 //  게시물 수정본 등록
     @RequestMapping("/test/form.do")
     public String boardForm(@ModelAttribute("freeBoard") FreeBoardVO freeBoard) {
         return "board/form";
-    }
-    
-//  답글 등록  
-    @PostMapping("/test/reform.do")
-    public String boardRewrite(Model model, @RequestParam(defaultValue="0") int bNo) {
-        if (bNo == 0) {
-            return "redirect:/test/list.do";
-        }
-        model.addAttribute("bNo", bNo);
-        return "board/reform";
     }
 
 }
