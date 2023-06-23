@@ -20,7 +20,6 @@ public class FreeBoardService {
         this.freeBoardDAO = freeBoardDAO;
         this.sqlSessionTemplate = sqlSessionTemplate;
     }
-  
 
     public List<FreeBoardVO> getBoardList() throws Exception {
         List<FreeBoardVO> boardList = freeBoardDAO.getBoardList();
@@ -31,7 +30,7 @@ public class FreeBoardService {
         }
         return boardList;
     }
-    
+
     public FreeBoardVO getNotice(int bNo) throws Exception {
         FreeBoardVO board = freeBoardDAO.getBoard(bNo);
         if (board != null && "Y".equals(board.getbNoticeYn())) {
@@ -39,32 +38,19 @@ public class FreeBoardService {
         }
         return board;
     }
-    
-    public void insertBoard(FreeBoardVO board, int parentNo) {
-        // 답글의 정보를 새로운 객체에 설정
-        FreeBoardVO replyBoard = new FreeBoardVO();
-        replyBoard.setbTitle(board.getbTitle());
-        replyBoard.setbCategory(board.getbCategory());
-        replyBoard.setbWriter(board.getbWriter());
-        replyBoard.setbPass(board.getbPass());
-        replyBoard.setbContent(board.getbContent());
-        replyBoard.setbNoticeYn(board.getbNoticeYn());
-      
-        // 부모 게시물의 번호 설정
-        replyBoard.setParentNo(parentNo);
-      
-        // 답글 등록 로직 구현
-        freeBoardDAO.insertBoard(replyBoard);
+
+    public void insertBoard(FreeBoardVO board) {
+        freeBoardDAO.insertBoard(board);
     }
 
     public List<FreeBoardVO> getNoticeList() throws Exception {
         return freeBoardDAO.getNoticeList();
     }
-    
+
     public int updateNoticeYn(int bNo, String bNoticeYn) throws Exception {
         return freeBoardDAO.updateNoticeYn(bNo, bNoticeYn);
     }
-    
+
     public void updateViewCnt(int bNo) throws Exception {
         sqlSessionTemplate.update("com.study.board.dao.FreeBoardDAO.updateViewCnt", bNo);
     }
@@ -77,4 +63,12 @@ public class FreeBoardService {
         return board;
     }
 
+    public void insertReply(FreeBoardVO replyBoard) {
+    	replyBoard.setParentNo(replyBoard.getbNo()); // 답변 게시물의 부모 번호 설정 예시
+        freeBoardDAO.insertBoard(replyBoard);
+    }
+
+	public void deleteBoard(FreeBoardVO freeBoard) {
+		freeBoardDAO.deleteBoard(freeBoard);
+	}
 }
