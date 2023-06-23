@@ -109,7 +109,6 @@ public class FreeController {
         return "board/replyForm";
     }
 
-    
 //  게시물 수정본 등록
     @RequestMapping("/test/form.do")
     public String boardForm(@ModelAttribute("freeBoard") FreeBoardVO freeBoard) {
