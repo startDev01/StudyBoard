@@ -11,8 +11,8 @@ import com.study.board.vo.FreeBoardVO;
 
 @Service
 public class FreeBoardService {
-
-    private final FreeBoardDAO freeBoardDAO;
+    
+    private final FreeBoardDAO freeBoardDAO;    
     private final SqlSessionTemplate sqlSessionTemplate;
 
     @Autowired
@@ -39,8 +39,18 @@ public class FreeBoardService {
         return board;
     }
 
-    public void insertBoard(FreeBoardVO board) {
-        freeBoardDAO.insertBoard(board);
+    public void insertBoard(FreeBoardVO freeBoard) {
+        if (freeBoard.getParentNo() == 0) {
+            freeBoard.setParentNo(0); // 새로운 게시물의 부모 번호는 0으로 설정
+        }
+        freeBoardDAO.insertBoard(freeBoard);
+    }
+
+    public void insertReplyBoard(FreeBoardVO freeBoard) throws Exception {
+        FreeBoardVO parentBoard = freeBoardDAO.getBoard(freeBoard.getParentNo()); // 부모 게시물 가져오기
+        int parentDepth = parentBoard.getDepth();
+        freeBoard.setDepth(parentDepth + 1);
+        freeBoardDAO.insertReplyBoard(freeBoard);
     }
 
     public List<FreeBoardVO> getNoticeList() throws Exception {
@@ -55,6 +65,7 @@ public class FreeBoardService {
         sqlSessionTemplate.update("com.study.board.dao.FreeBoardDAO.updateViewCnt", bNo);
     }
 
+    
     public FreeBoardVO getBoard(int bNo) throws Exception {
         FreeBoardVO board = freeBoardDAO.getBoard(bNo);
         if (board != null && "Y".equals(board.getbNoticeYn())) {
@@ -63,11 +74,10 @@ public class FreeBoardService {
         return board;
     }
 
-    public void insertReply(FreeBoardVO replyBoard) {
-    	replyBoard.setParentNo(replyBoard.getbNo()); // 답변 게시물의 부모 번호 설정 예시
-        freeBoardDAO.insertBoard(replyBoard);
+    public int getMaxDepth() {
+        return freeBoardDAO.getMaxDepth();
     }
-
+    
 	public void deleteBoard(FreeBoardVO freeBoard) {
 		freeBoardDAO.deleteBoard(freeBoard);
 	}

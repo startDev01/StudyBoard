@@ -3,11 +3,11 @@ drop table free_board;
 CREATE SEQUENCE seq_free_board;
 
 CREATE TABLE free_board (
-   b_no     NUMBER NOT NULL, 
-   b_title  VARCHAR2(250) NOT NULL,
+   b_no     NUMBER NULL, 
+   b_title  VARCHAR2(250) NULL,
    b_category  CHAR(10) , 
-   b_writer VARCHAR2(100) NOT NULL,
-   b_pass   varchar2(60)  not null, 
+   b_writer VARCHAR2(100) NULL,
+   b_pass   varchar2(60)  null, 
    b_content CLOB,
    b_hit     NUMBER,   
    b_reg_date DATE DEFAULT SYSDATE,

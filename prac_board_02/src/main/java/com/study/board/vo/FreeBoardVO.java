@@ -19,8 +19,8 @@ public class FreeBoardVO {
 	private String bDelYn;
 	private String bNoticeYn;
 	private int parentNo;	
-	private String depth;		
-
+	private int depth;		
+	
 	public int getParentNo() {
 		return parentNo;
 	}
@@ -29,11 +29,11 @@ public class FreeBoardVO {
 		this.parentNo = parentNo;
 	}
 
-	public String getDepth() {
+	public int getDepth() {
 		return depth;
 	}
 
-	public void setDepth(String depth) {
+	public void setDepth(int depth) {
 		this.depth = depth;
 	}
 

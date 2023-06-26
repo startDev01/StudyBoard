@@ -14,117 +14,114 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.study.board.dao.FreeBoardDAO;
 import com.study.board.service.FreeBoardService;
 import com.study.board.vo.FreeBoardVO;
 
 @Controller
 public class FreeController {
 
-    private final FreeBoardService freeBoardService;
+	@Autowired
+	private FreeBoardDAO freeBoardDAO;
 
-    @Autowired
-    public FreeController(FreeBoardService freeBoardService) {
-        this.freeBoardService = freeBoardService;
-    }
+	@Autowired
+	private FreeBoardService freeBoardService;
 
-    // 게시물 목록 출력
-    @RequestMapping("list.do")
-    public String boardList(Model model) throws Exception {
-        List<FreeBoardVO> freeboardList = freeBoardService.getBoardList();
-        List<FreeBoardVO> noticeList = new ArrayList<>();
-        List<FreeBoardVO> normalList = new ArrayList<>();
+	// 게시물 목록 출력
+	@RequestMapping("list.do")
+	public String boardList(Model model) throws Exception {
+		List<FreeBoardVO> freeboardList = freeBoardDAO.getBoardList();
+		List<FreeBoardVO> noticeList = new ArrayList<>();
+		List<FreeBoardVO> normalList = new ArrayList<>();
 
-        for (FreeBoardVO freeBoard : freeboardList) {
-            if ("Y".equals(freeBoard.getbNoticeYn())) {
-                noticeList.add(freeBoard);
-            } else {
-                normalList.add(freeBoard);
-            }
-        }
+		for (FreeBoardVO freeBoard : freeboardList) {
+			if ("Y".equals(freeBoard.getbNoticeYn())) {
+				noticeList.add(freeBoard);
+			} else {
+				normalList.add(freeBoard);
+			}
+		}
+		model.addAttribute("noticeList", noticeList);
+		model.addAttribute("normalList", normalList);
+		return "board/boardList";
+	}
 
-        model.addAttribute("noticeList", noticeList);
-        model.addAttribute("normalList", normalList);
-        return "board/boardList";
-    }
+	// 게시물 상세 페이지 출력
+	@RequestMapping("view.do")
+	public String boardView(@RequestParam("bNo") int bNo, HttpSession session, Model model) throws Exception {
+		Set<Integer> visitedBoardSet = (Set<Integer>) session.getAttribute("visitedBoardSet");
+		if (visitedBoardSet == null) {
+			visitedBoardSet = new HashSet<>();
+			session.setAttribute("visitedBoardSet", visitedBoardSet);
+		}
 
-    // 게시물 상세 페이지 출력
-    @RequestMapping("view.do")
-    public String boardView(@RequestParam("bNo") int bNo, HttpSession session, Model model) throws Exception {
-        Set<Integer> visitedBoardSet = (Set<Integer>) session.getAttribute("visitedBoardSet");
-        if (visitedBoardSet == null) {
-            visitedBoardSet = new HashSet<>();
-            session.setAttribute("visitedBoardSet", visitedBoardSet);
-        }
+		if (!visitedBoardSet.contains(bNo)) {
+			freeBoardService.updateViewCnt(bNo);
+			visitedBoardSet.add(bNo);
+		}
 
-        if (!visitedBoardSet.contains(bNo)) {
-            freeBoardService.updateViewCnt(bNo);
-            visitedBoardSet.add(bNo);
-        }
+		FreeBoardVO freeBoard = freeBoardService.getNotice(bNo);
+		if ("Y".equals(freeBoard.getbNoticeYn())) {
+			freeBoard.setbCategory("공지");
+		}
 
-        FreeBoardVO freeBoard = freeBoardService.getNotice(bNo);
-        if ("Y".equals(freeBoard.getbNoticeYn())) {
-            freeBoard.setbCategory("공지");
-        }
+		model.addAttribute("freeBoard", freeBoard);
+		return "board/view";
+	}
 
-        model.addAttribute("freeBoard", freeBoard);
-        return "board/view";
-    }
+	// 게시물 수정
+	@RequestMapping("edit.do")
+	public String boardEdit(Model model, int bNo) {
+		FreeBoardVO freeBoard = freeBoardDAO.getBoard(bNo);
+		model.addAttribute("freeBoard", freeBoard);
+		return "board/edit";
+	}
 
-    // 게시물 수정
-    @RequestMapping("edit.do")
-    public String boardEdit(Model model, @RequestParam("bNo") int bNo) throws Exception {
-        FreeBoardVO freeBoard = freeBoardService.getBoard(bNo);
-        model.addAttribute("freeBoard", freeBoard);
-        return "board/edit";
-    }
+	// 게시물 삭제
+	@RequestMapping("delete.do")
+	public String boardDelete(@ModelAttribute("freeBoard") FreeBoardVO freeBoard) {
+		freeBoardDAO.deleteBoard(freeBoard);
+		return "redirect:/list.do";
+	}
 
-    // 게시물 삭제
-    @RequestMapping("delete.do")
-    public String boardDelete(@RequestParam("bNo") int bNo) throws Exception {
-        FreeBoardVO freeBoard = freeBoardService.getBoard(bNo);
-        if (freeBoard != null) {
-            freeBoardService.deleteBoard(freeBoard);
-        }
-        return "redirect:/list.do";
-    }
+	// 게시물 등록
+	@RequestMapping("regist.do")
+	public String boardRegist(@ModelAttribute("freeBoard") FreeBoardVO freeBoard) throws Exception {
+		if (freeBoard.getParentNo() != 0 && freeBoard.getParentNo() > 0) {
+			FreeBoardVO parentBoard = freeBoardService.getBoard(freeBoard.getParentNo());
+			int parentDepth = parentBoard.getDepth();
+			freeBoard.setDepth(parentDepth + 1);
+			freeBoardService.insertReplyBoard(freeBoard);
+		} else {
+			if ("공지".equals(freeBoard.getbCategory())) {
+				freeBoard.setbNoticeYn("Y");
+			} else {
+				freeBoard.setbNoticeYn("N");
+			}
+			int maxDepth = freeBoardService.getMaxDepth(); // 최대 depth 가져오기
+			freeBoard.setDepth(maxDepth + 1); // 현재 글의 depth는 최대 depth + 1로 설정
 
-    // 게시물 등록
-    @RequestMapping("regist.do")
-    public String boardRegist(@ModelAttribute("freeBoard") FreeBoardVO freeBoard) {
-        if ("공지".equals(freeBoard.getbCategory())) {
-            freeBoard.setbNoticeYn("Y");
-        } else {
-            freeBoard.setbNoticeYn("N");
-        }
-        freeBoardService.insertBoard(freeBoard);
-        return "redirect:/list.do";
-    }
+			freeBoardService.insertBoard(freeBoard); // 일반 글 작성
+		}
+		return "redirect:/list.do";
+	}
 
-    @RequestMapping("replyForm.do")
-    public String replyForm(@RequestParam(value = "parentNo", required = false) int parentNo, Model model) throws Exception {
-        FreeBoardVO parentBoard = freeBoardService.getBoard(parentNo); // 부모 게시물 가져오기
-        model.addAttribute("parentBoard", parentBoard); // 부모 게시물 정보 전달
+	@RequestMapping("replyForm.do")
+	public String replyForm(@RequestParam(value = "parentNo", required = false) int parentNo, Model model)
+			throws Exception {
+		FreeBoardVO parentBoard = freeBoardService.getBoard(parentNo); // 부모 게시물 가져오기
+		int parentDepth = parentBoard.getDepth();
+		int newDepth = parentDepth + 1;
+		model.addAttribute("parentBoard", parentBoard); // 부모 게시물 정보 전달
+		model.addAttribute("parentDepth", newDepth); // 새로운 depth 정보 전달
 
-        return "board/replyForm"; // replyForm JSP로 이동
-    }
+		return "board/replyForm";
+	}
 
-    @RequestMapping("submitReply.do")
-    public String submitReply(@ModelAttribute("replyBoard") FreeBoardVO replyBoard, Model model) throws Exception {
-        // replyBoard에 양식 데이터가 자동으로 바인딩되어 전달됨
+	// 게시물 수정본 등록
+	@RequestMapping("form.do")
+	public String boardForm(@ModelAttribute("freeBoard") FreeBoardVO freeBoard) {
+		return "board/form";
+	}
 
-        // 답변 게시물 등록
-        freeBoardService.insertReply(replyBoard);
-
-        // 활성화된 게시판 목록에 내가 생성한 답변글이 표시되도록 수정
-        List<FreeBoardVO> boardList = freeBoardService.getBoardList(); // 현재 활성화된 게시판 목록 가져오기
-        model.addAttribute("boardList", boardList); // 게시판 목록 전달
-
-        return "board/boardList"; // 게시판 목록 JSP로 이동
-    }
-    
-    // 게시물 수정본 등록
-    @RequestMapping("form.do")
-    public String boardForm(@ModelAttribute("freeBoard") FreeBoardVO freeBoard) {
-        return "board/form";
-    }
 }

@@ -5,17 +5,24 @@
 	<!-- 게시판 목록 출력 / 공지글 포함 -->
 	<select id="getBoardList"
 		resultType="com.study.board.vo.FreeBoardVO">
-		SELECT ROW_NUMBER() OVER (ORDER BY b_no DESC) AS row_number
+		SELECT *
+		FROM (
+		SELECT ROW_NUMBER() OVER (ORDER BY b_no ASC)
+		AS row_number
 		, b_no, b_title, b_category, b_writer
 		, b_content, b_hit
 		,
 		to_char(b_reg_date, 'YYYY-MM-DD') AS b_reg_date
-		,
-		to_char(b_mod_date,'YYYY-MM-DD') AS b_mod_date
-		, b_del_yn, b_notice_yn
-		FROM free_board
-		WHERE b_del_yn='N'
-		ORDER BY b_no DESC, b_notice_yn DESC
+		, to_char(b_mod_date,
+		'YYYY-MM-DD') AS b_mod_date
+		, b_del_yn, b_notice_yn, depth
+		FROM
+		free_board
+		WHERE b_del_yn = 'N'
+		ORDER BY depth, b_no ASC, b_notice_yn
+		DESC
+		)
+		ORDER BY row_number ASC
 	</select>
 
 	<!-- 특정 게시물 -->
@@ -54,32 +61,47 @@
 
 	<!-- 게시물 등록 -->
 	<!-- 일반 게시물 등록 / 답글 등록 일때의 경우를 나눠놓음 -->
-	<insert id="insertBoard" parameterType="com.study.board.vo.FreeBoardVO">
-	<if test="parentNo != null">
+	<insert id="insertBoard"
+		parameterType="com.study.board.vo.FreeBoardVO">
+
 		INSERT INTO free_board (
-			b_no, b_title, b_category, b_writer, b_pass, b_content, b_hit,
-			b_reg_date, b_mod_date, b_del_yn, b_notice_yn, parent_no, depth
+		b_no, b_title, b_category,
+		b_writer, b_pass, b_content, b_hit,
+		b_reg_date, b_mod_date, b_del_yn,
+		b_notice_yn
 		) VALUES (
-			seq_free_board.nextval, #{bTitle, jdbcType=VARCHAR},
-			#{bCategory, jdbcType=VARCHAR},
-			#{bWriter, jdbcType=VARCHAR}, #{bPass, jdbcType=VARCHAR},
-			#{bContent, jdbcType=VARCHAR}, 0, SYSDATE, null, 'N',
-			#{bNoticeYn, jdbcType=CHAR}, #{parentNo, jdbcType=INTEGER},
-			#{depth, jdbcType=INTEGER}
+		seq_free_board.nextval, #{bTitle,
+		jdbcType=VARCHAR},
+		#{bCategory, jdbcType=VARCHAR},
+		#{bWriter,
+		jdbcType=VARCHAR}, #{bPass, jdbcType=VARCHAR},
+		#{bContent,
+		jdbcType=VARCHAR}, 0, SYSDATE, null, 'N',
+		#{bNoticeYn, jdbcType=CHAR}
 		)
-		</if>
-		<if test="parentNo == null">
-			INSERT INTO free_board (
-				b_no, b_title, b_category, b_writer, b_pass, b_content, b_hit,
-				b_reg_date, b_mod_date, b_del_yn, b_notice_yn
-			) VALUES (
-				seq_free_board.nextval, #{bTitle, jdbcType=VARCHAR},
-				#{bCategory, jdbcType=VARCHAR},
-				#{bWriter, jdbcType=VARCHAR}, #{bPass, jdbcType=VARCHAR},
-				#{bContent, jdbcType=VARCHAR}, 0, SYSDATE, null, 'N',
-				#{bNoticeYn, jdbcType=CHAR}
-			)
-		</if>
+	</insert>
+
+	<insert id="insertReplyBoard"
+		parameterType="com.study.board.vo.FreeBoardVO">
+
+		INSERT INTO free_board (
+		b_no, b_title, b_category,
+		b_writer, b_pass, b_content, b_hit,
+		b_reg_date, b_mod_date, b_del_yn,
+		b_notice_yn, parent_no, depth
+		) VALUES (
+		seq_free_board.nextval,
+		#{bTitle, jdbcType=VARCHAR},
+		#{bCategory, jdbcType=VARCHAR},
+		#{bWriter,
+		jdbcType=VARCHAR}, #{bPass, jdbcType=VARCHAR},
+		#{bContent,
+		jdbcType=VARCHAR}, 0, SYSDATE, null, 'N',
+		#{bNoticeYn, jdbcType=CHAR},
+		#{parentNo, jdbcType=INTEGER},
+		(SELECT NVL(MAX(depth), 0) + 1 FROM
+		free_board WHERE parent_no = #{parentNo})
+		)
 	</insert>
 
 	<!-- 조회수 -->
@@ -90,5 +112,11 @@
 		where b_no =
 		#{bNo}
 	</update>
+
+	<!-- 최대 depth 조회 -->
+	<select id="getMaxDepth" resultType="int">
+		SELECT COALESCE(MAX(depth),
+		0) FROM free_board
+	</select>
 
 </mapper>
