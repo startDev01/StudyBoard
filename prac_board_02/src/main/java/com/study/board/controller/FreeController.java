@@ -79,9 +79,9 @@ public class FreeController {
 
 	// 게시물 삭제
 	@RequestMapping("delete.do")
-	public String boardDelete(@ModelAttribute("freeBoard") FreeBoardVO freeBoard) {
-		freeBoardDAO.deleteBoard(freeBoard);
-		return "redirect:/list.do";
+	public String boardDelete(@RequestParam("bNo") int bNo) {
+	    freeBoardDAO.deleteBoard(bNo);
+	    return "redirect:/list.do";
 	}
 
 	// 게시물 등록

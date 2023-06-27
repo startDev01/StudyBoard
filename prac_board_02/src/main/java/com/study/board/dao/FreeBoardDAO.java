@@ -14,12 +14,13 @@ public interface FreeBoardDAO {
     List<FreeBoardVO> getBoardList();
     FreeBoardVO getBoard(int bNo);
     int updateBoard(FreeBoardVO freeBoard);
-    int deleteBoard(FreeBoardVO freeBoard);
+    void deleteBoard(int bNo);
     int insertBoard(FreeBoardVO freeBoard);
     void updateViewCnt(int bNo);
     List<FreeBoardVO> getNoticeList();
 	int updateNoticeYn(@Param("bNo") int bNo, @Param("bNoticeYn") String bNoticeYn);
 	int insertReplyBoard(FreeBoardVO freeBoard);
 	int getMaxDepth();
+	List<FreeBoardVO> getReplyList(int parentNo);
 }
 

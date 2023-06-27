@@ -1,10 +1,11 @@
 package com.study.board.vo;
 
+import java.util.List;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.springframework.stereotype.Component;
 
-@Component
 public class FreeBoardVO {
 
 	private int bNo;
@@ -20,7 +21,16 @@ public class FreeBoardVO {
 	private String bNoticeYn;
 	private int parentNo;	
 	private int depth;		
+	private List<FreeBoardVO> replyList;
 	
+	public List<FreeBoardVO> getReplyList() {
+		return replyList;
+	}
+
+	public void setReplyList(List<FreeBoardVO> replyList) {
+		this.replyList = replyList;
+	}
+
 	public int getParentNo() {
 		return parentNo;
 	}
