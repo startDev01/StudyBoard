@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.springframework.stereotype.Component;
 
 public class FreeBoardVO {
 
@@ -19,10 +18,20 @@ public class FreeBoardVO {
 	private String bModDate;
 	private String bDelYn;
 	private String bNoticeYn;
+	
 	private int parentNo;	
 	private int depth;		
 	private List<FreeBoardVO> replyList;
+	private String depthString;
 	
+	public String getDepthString() {
+		return depthString;
+	}
+
+	public void setDepthString(String depthString) {
+		this.depthString = depthString;
+	}
+
 	public List<FreeBoardVO> getReplyList() {
 		return replyList;
 	}

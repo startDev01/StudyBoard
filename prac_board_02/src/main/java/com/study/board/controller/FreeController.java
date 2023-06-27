@@ -81,6 +81,7 @@ public class FreeController {
 	@RequestMapping("delete.do")
 	public String boardDelete(@RequestParam("bNo") int bNo) {
 	    freeBoardDAO.deleteBoard(bNo);
+	    System.out.println("삭제되는 게시물의 번호는 : "+ bNo);
 	    return "redirect:/list.do";
 	}
 
