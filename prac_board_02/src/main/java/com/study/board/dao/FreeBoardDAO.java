@@ -6,10 +6,11 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import com.study.board.vo.FreeBoardVO;
+import com.study.board.vo.PagingVO;
 
 @Mapper
 public interface FreeBoardDAO {
-    List<FreeBoardVO> getBoardList();
+    //List<FreeBoardVO> getBoardList();
     FreeBoardVO getBoard(int bNo);
     int updateBoard(FreeBoardVO freeBoard);
     void deleteBoard(int bNo);
@@ -20,5 +21,7 @@ public interface FreeBoardDAO {
 	int insertReplyBoard(FreeBoardVO freeBoard);
 	int getMaxDepth();
 	List<FreeBoardVO> getReplyList(int parentNo);
+	int getTotalRowCount(PagingVO paging);
+	List<FreeBoardVO> getBoardList();
 }
 

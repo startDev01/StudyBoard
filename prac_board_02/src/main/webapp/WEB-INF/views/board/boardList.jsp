@@ -74,48 +74,46 @@
         <table border="1">
             <thead>
             <tr>
-                <th style="width: 10%;">글번호</th>
-                <th style="width: 40%;">제목</th>
-                <th style="width: 15%;">글 분류</th>
-                <th style="width: 15%;">작성자</th>
-                <th style="width: 15%;">등록일</th>
-                <th style="width: 5%;">조회수</th>
+                <th style="width: 10%;"> </th>
+                <th style="width: 40%; text-align: center;">제목</th>
+                <th style="width: 12%;">글 분류</th>
+                <th style="width: 12%;">작성자</th>
+                <th style="width: 12%;">등록일</th>
+                <th style="width: 7%; text-align: center;">조회수</th>
             </tr>
             </thead>
             <tbody>
-            <c:forEach items="${noticeList}" var="freeBoard">
-                <tr class="notice-row">
-                    <td>${freeBoard.bNo}</td>
-                    <td class="title-cell expandable">
-                        <c:forEach begin="1" end="${freeBoard.depth}" varStatus="loop">
-                            <span class="depth-${loop.index}"></span>
-                        </c:forEach>
-                        <a href="view.do?bNo=${freeBoard.bNo}" class="highlight">${freeBoard.bTitle}</a>
-                    </td>
+			  <c:forEach items="${noticeList}" var="freeBoard" varStatus="varStatus">
+			    <tr class="notice-row">
+			        <td>${varStatus.index + 1}</td>
+			        <td class="title-cell expandable">
+			            <c:forEach begin="1" end="${freeBoard.depth}" varStatus="loop">
+			                <span class="depth-${loop.index}"></span>
+			            </c:forEach>
+			            <img src="resources/image/newn.png" alt="New" width="20" height="20" />
+			            <a href="view.do?bNo=${freeBoard.bNo}" class="highlight">${freeBoard.bTitle}</a>
+			        </td>
                     <td class="fit-content">${freeBoard.bCategory}</td>
                     <td class="fit-content">${freeBoard.bWriter}</td>
                     <td class="fit-content">${freeBoard.bRegDate}</td>
                     <td class="fit-content">${freeBoard.bHit}</td>
                 </tr>
-                <c:forEach items="${freeBoard.replyList}" var="reply">
-                    <tr>
-                        <td>${reply.bNo}</td>
-                        <td class="title-cell expandable">
-                            <c:forEach begin="1" end="${freeBoard.depth + reply.depth}" varStatus="loop">
-                                <span class="depth-${loop.index}"></span>
-                            </c:forEach>
-                            <a href="view.do?bNo=${reply.bNo}">${reply.bTitle}</a>
-                        </td>
-                        <td class="fit-content">${reply.bCategory}</td>
-                        <td class="fit-content">${reply.bWriter}</td>
-                        <td class="fit-content">${reply.bRegDate}</td>
-                        <td class="fit-content">${reply.bHit}</td>
-                    </tr>
+		    <c:forEach items="${freeBoard.replyList}" var="reply">
+		        <tr>
+		            <td>${reply.bNo}</td>
+		            <td class="title-cell expandable">
+		                <c:forEach begin="1" end="${freeBoard.depth}" varStatus="loop">
+		                    <span class="depth-${loop.index}"></span>
+		                </c:forEach>
+		                <span class="depth-${freeBoard.depth + 1}"></span>
+		                <img src="/resources/image/newr.png" alt="New" width="20" height="20" />
+		                <a href="view.do?bNo=${reply.bNo}">${reply.bTitle}</a>
+		            </td>
                 </c:forEach>
             </c:forEach>
-            <c:forEach items="${normalList}" var="freeBoard">
+            <c:forEach items="${normalList}" var="freeBoard" varStatus="varStatus">
                 <tr>
-                    <td>${freeBoard.bNo}</td>
+                    <td>${varStatus.index + 1}</td> <!-- 변경된 부분 -->
                     <td class="title-cell expandable">
                         <c:forEach begin="1" end="${freeBoard.depth}" varStatus="loop">
                             <span class="depth-${loop.index}"></span>

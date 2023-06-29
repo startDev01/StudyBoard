@@ -19,10 +19,12 @@ public class FreeBoardVO {
 	private String bDelYn;
 	private String bNoticeYn;
 	
+	//답글 구현에 쓰이는 변수
 	private int parentNo;	
 	private int depth;		
 	private List<FreeBoardVO> replyList;
 	private String depthString;
+	
 	
 	public String getDepthString() {
 		return depthString;

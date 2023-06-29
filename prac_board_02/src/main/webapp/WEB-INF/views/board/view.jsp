@@ -77,7 +77,7 @@ h1 {
 				<span class="notice-label">공지</span>
 			</c:if>
 		</h1>
-		<p class="meta">작성자: ${freeBoard.bWriter} | 등록일:
+		<p class="meta">글번호: ${freeBoard.bNo} | 작성자: ${freeBoard.bWriter} | 등록일:
 			${freeBoard.bRegDate} | 조회수: ${freeBoard.bHit} | 글분류:
 			${freeBoard.bCategory}</p>
 		<div class="content">

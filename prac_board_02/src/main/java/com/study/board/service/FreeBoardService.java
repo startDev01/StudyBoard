@@ -24,33 +24,35 @@ public class FreeBoardService {
     
     public List<FreeBoardVO> getBoardList() throws Exception {
         List<FreeBoardVO> boardList = freeBoardDAO.getBoardList();
+        
         for (FreeBoardVO board : boardList) {
             if ("Y".equals(board.getbNoticeYn())) {
                 board.setbCategory("공지");
             }
             int depth = board.getDepth();
-            StringBuilder depthString = new StringBuilder();
-            for (int i = 0; i < depth; i++) {
-                depthString.append("&nbsp;&nbsp;&nbsp;&nbsp;");
-            }
-            board.setDepthString(depthString.toString());
+            board.setDepthString(getDepthString(depth));
             
-            // 답변글이 있는 경우, 답변글의 계층 구조를 반영하여 depthString을 생성합니다.
-            List<FreeBoardVO> replyList = board.getReplyList();
+            List<FreeBoardVO> replyList = freeBoardDAO.getReplyList(board.getbNo());
             if (replyList != null) {
                 for (FreeBoardVO reply : replyList) {
                     int replyDepth = reply.getDepth();
-                    StringBuilder replyDepthString = new StringBuilder();
-                    for (int i = 0; i < replyDepth; i++) {
-                        replyDepthString.append("&nbsp;&nbsp;&nbsp;&nbsp;");
-                    }
-                    reply.setDepthString(replyDepthString.toString());
+                    reply.setDepthString(getDepthString(replyDepth));
                 }
+                board.setReplyList(replyList);
             }
         }
+        
         return boardList;
     }
-    
+
+    private String getDepthString(int depth) {
+        StringBuilder depthString = new StringBuilder();
+        for (int i = 0; i < depth; i++) {
+            depthString.append("&nbsp;&nbsp;&nbsp;&nbsp;");
+        }
+        return depthString.toString();
+    }
+
     public FreeBoardVO getNotice(int bNo) throws Exception {
         FreeBoardVO board = freeBoardDAO.getBoard(bNo);
         if (board != null && "Y".equals(board.getbNoticeYn())) {
@@ -61,34 +63,81 @@ public class FreeBoardService {
 
     public void insertBoard(FreeBoardVO freeBoard) {
         if (freeBoard.getParentNo() == 0) {
-            freeBoard.setParentNo(0); // 새로운 게시물의 부모 번호는 0으로 설정
-            freeBoard.setDepth(0); // 새로운 게시물의 depth는 0으로 설정
+            freeBoard.setParentNo(0);
+            freeBoard.setDepth(0); 
         } else {
             FreeBoardVO parentBoard = freeBoardDAO.getBoard(freeBoard.getParentNo());
             int parentDepth = parentBoard.getDepth();
-            int depth = parentDepth + 1;
-            freeBoard.setDepth(depth);
+            freeBoard.setDepth(parentDepth + 1);
+            
+            // 부모 글의 replyList 가져오기
+            List<FreeBoardVO> replyList = parentBoard.getReplyList();
+            if (replyList == null) {
+                replyList = new ArrayList<>();
+                parentBoard.setReplyList(replyList);
+            }
+            
+            // 새로운 답변글을 추가할 때, 올바른 위치에 삽입
+            int index = 0;
+            for (; index < replyList.size(); index++) {
+                FreeBoardVO reply = replyList.get(index);
+                int replyDepth = reply.getDepth();
+                if (replyDepth > freeBoard.getDepth()) {
+                    break;
+                }
+            }
+            
+            replyList.add(index, freeBoard);
+            freeBoard.setbTitle("[Re] " + freeBoard.getbTitle());
+            
+            // 새로운 답변글의 depth 보정
+            updateReplyDepth(freeBoard, parentDepth + 1);
         }
+        
         freeBoardDAO.insertBoard(freeBoard);
     }
 
     public void insertReplyBoard(FreeBoardVO freeBoard) throws Exception {
-        FreeBoardVO parentBoard = freeBoardDAO.getBoard(freeBoard.getParentNo()); // 부모 게시물 가져오기
+        FreeBoardVO parentBoard = freeBoardDAO.getBoard(freeBoard.getParentNo());
         int parentDepth = parentBoard.getDepth();
         int depth = parentDepth + 1;
         freeBoard.setDepth(depth);
         
-        // 새로운 답변글을 추가할 때, 기존의 계층 구조를 유지하기 위해 부모 글의 replyList에 새로운 답변글을 추가합니다.
+        // 부모 글의 replyList 가져오기
         List<FreeBoardVO> replyList = parentBoard.getReplyList();
         if (replyList == null) {
             replyList = new ArrayList<>();
+            parentBoard.setReplyList(replyList);
         }
-        replyList.add(freeBoard);
-        parentBoard.setReplyList(replyList);
+        
+        // 새로운 답변글을 추가할 때, 올바른 위치에 삽입
+        int index = 0;
+        for (; index < replyList.size(); index++) {
+            FreeBoardVO reply = replyList.get(index);
+            int replyDepth = reply.getDepth();
+            if (replyDepth > depth) {
+                break;
+            }
+        }
+        
+        replyList.add(index, freeBoard);
+        freeBoard.setbTitle("[Re] " + freeBoard.getbTitle());
+        
+        // 새로운 답변글의 depth 보정
+        updateReplyDepth(freeBoard, depth + 1);
         
         freeBoardDAO.insertReplyBoard(freeBoard);
     }
 
+    private void updateReplyDepth(FreeBoardVO board, int depth) {
+        List<FreeBoardVO> replyList = board.getReplyList();
+        if (replyList != null) {
+            for (FreeBoardVO reply : replyList) {
+                reply.setDepth(depth);
+                updateReplyDepth(reply, depth + 1);
+            }
+        }
+    }
     public List<FreeBoardVO> getNoticeList() throws Exception {
         return freeBoardDAO.getNoticeList();
     }

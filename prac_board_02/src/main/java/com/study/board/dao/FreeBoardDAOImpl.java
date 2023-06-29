@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.study.board.vo.FreeBoardVO;
+import com.study.board.vo.PagingVO;
 
 @Repository
 public class FreeBoardDAOImpl implements FreeBoardDAO {
@@ -15,13 +16,13 @@ public class FreeBoardDAOImpl implements FreeBoardDAO {
 
     @Autowired
     public FreeBoardDAOImpl(SqlSession sqlSession) {
-        this.sqlSession = sqlSession;
+		this.sqlSession = sqlSession;
     }
 
-    @Override
-    public List<FreeBoardVO> getBoardList() {
-        return sqlSession.selectList("com.study.board.dao.FreeBoardDAO.getBoardList");
-    }
+
+//    public List<FreeBoardVO> getBoardList(PagingVO pagingVO) {
+//        return sqlSession.selectList("com.study.board.dao.FreeBoardDAO.getBoardList");
+//    }
 
     @Override
     public FreeBoardVO getBoard(int bNo) {
@@ -73,4 +74,13 @@ public class FreeBoardDAOImpl implements FreeBoardDAO {
         return sqlSession.selectList("com.study.board.dao.FreeBoardDAO.getReplyList", parentNo);
     }
 
+	@Override
+	public int getTotalRowCount(PagingVO paging) {
+		return sqlSession.selectList("com.study.board.dao.FreeBoardDAO.getTotalRowCount");
+    }
+
+    @Override
+    public List<FreeBoardVO> getBoardList() { // PagingVO 인자 제거
+        return sqlSession.selectList("com.study.board.dao.FreeBoardDAO.getBoardList");
+    }
 }
