@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.study.board.dao.FreeBoardDAO;
 import com.study.board.vo.FreeBoardVO;
+import com.study.board.vo.PagingVO;
 
 @Service
 public class FreeBoardService {
@@ -22,8 +23,8 @@ public class FreeBoardService {
         this.sqlSessionTemplate = sqlSessionTemplate;
     }
     
-    public List<FreeBoardVO> getBoardList() throws Exception {
-        List<FreeBoardVO> boardList = freeBoardDAO.getBoardList();
+    public List<FreeBoardVO> getBoardList(PagingVO paging) throws Exception {
+        List<FreeBoardVO> boardList = freeBoardDAO.getBoardList(paging);
         
         for (FreeBoardVO board : boardList) {
             if ("Y".equals(board.getbNoticeYn())) {
@@ -48,10 +49,11 @@ public class FreeBoardService {
     private String getDepthString(int depth) {
         StringBuilder depthString = new StringBuilder();
         for (int i = 0; i < depth; i++) {
-            depthString.append("&nbsp;&nbsp;&nbsp;&nbsp;");
+            depthString.append("└─");
         }
         return depthString.toString();
     }
+
 
     public FreeBoardVO getNotice(int bNo) throws Exception {
         FreeBoardVO board = freeBoardDAO.getBoard(bNo);

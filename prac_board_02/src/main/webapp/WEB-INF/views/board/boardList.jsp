@@ -1,5 +1,5 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <!DOCTYPE html>
 <html>
@@ -129,6 +129,20 @@
             </tbody>
         </table>
     </div>
+	    <div style="text-align: center; margin-top: 20px;">
+	    <a href="list.do?curPage=1">&laquo;</a>
+	    <a href="list.do?curPage=${paging.curPage - 1 }">&lt;</a>
+	    <c:forEach begin="${paging.firstPage }" end="${paging.lastPage }" var="i">
+	        <a href="list.do?curPage=${i }">  
+	            <c:if test="${i eq paging.curPage }">
+	                <span style="color: red">${i }</span>
+	            </c:if>
+	            <c:if test="${i ne paging.curPage }">${i }</c:if>
+	        </a>
+	    </c:forEach>
+	    <a href="list.do?curPage=${paging.curPage + 1 }">&gt;</a>
+	    <a href="list.do?curPage=${paging.totalPageCount }">&raquo;</a>
+	</div>
 </div>
 <div style="text-align: center; margin-top: 20px;">
     <a href="form.do">등록하기</a>

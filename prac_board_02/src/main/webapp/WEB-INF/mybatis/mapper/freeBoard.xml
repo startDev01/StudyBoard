@@ -4,25 +4,29 @@
 
 	<!-- 게시판 목록 출력 / 공지글 포함 -->
 	<select id="getBoardList"
-		resultType="com.study.board.vo.FreeBoardVO">
-		SELECT *
-		FROM (
-		SELECT ROW_NUMBER() OVER (ORDER BY b_no ASC)
-		AS row_number
-		, b_no, b_title, b_category, b_writer
-		, b_content, b_hit
-		,
-		to_char(b_reg_date, 'YYYY-MM-DD') AS b_reg_date
-		, to_char(b_mod_date,
-		'YYYY-MM-DD') AS b_mod_date
-		, b_del_yn, b_notice_yn, depth
-		FROM
-		free_board
-		WHERE b_del_yn = 'N'
-		ORDER BY depth, b_no ASC, b_notice_yn
-		DESC
-		)
-		ORDER BY row_number ASC
+	    resultType="com.study.board.vo.FreeBoardVO"
+	    parameterType="com.study.board.vo.PagingVO">
+	    SELECT * FROM (
+	        SELECT a.*, rownum AS rnum FROM (
+	            SELECT
+	                b_no, b_title, b_category, b_writer,
+	                b_content, b_hit, b_reg_date, b_mod_date,
+	                b_del_yn, b_notice_yn, depth,
+	                LPAD(' ', depth * 4) || b_title AS display_title
+	            FROM free_board
+	            WHERE b_del_yn = 'N'
+	            START WITH parent_no IS NULL
+	            CONNECT BY PRIOR b_no = parent_no
+	            ORDER SIBLINGS BY b_no ASC
+	        ) a
+	    ) b
+	    WHERE rnum BETWEEN #{firstRow} and #{lastRow}
+	</select>
+	
+	<!-- 페이징 처리 -->
+	<select id="getTotalRowCount" parameterType="com.study.board.vo.PagingVO" resultType="int">
+		SELECT count(*)
+		FROM free_board
 	</select>
 
 	<!-- 특정 게시물 -->
@@ -52,12 +56,10 @@
 	</update>
 
 	<!-- 게시물 삭제 -->
-	<update id="deleteBoard"
-		parameterType="com.study.board.vo.FreeBoardVO">
-		UPDATE free_board SET
-		b_del_yn='Y'
-		WHERE b_no=#{bNo}
-	</update>
+	<delete id="deleteBoard" parameterType="int">
+	    DELETE FROM free_board
+	    WHERE b_no = #{bNo}
+	</delete>
 
 	<!-- 게시물 등록 -->
 	<!-- 일반 게시물 등록 / 답글 등록 일때의 경우를 나눠놓음 -->
@@ -81,6 +83,7 @@
 		)
 	</insert>
 
+	<!-- 답변글 생성 -->
 	<insert id="insertReplyBoard"
 		parameterType="com.study.board.vo.FreeBoardVO">
 
@@ -104,6 +107,12 @@
 		)
 	</insert>
 
+	<!-- 최대 depth 조회 -->
+	<select id="getMaxDepth" resultType="int">
+		SELECT COALESCE(MAX(depth),
+		0) FROM free_board
+	</select>
+
 	<!-- 조회수 -->
 	<update id="updateViewCnt"
 		parameterType="com.study.board.vo.FreeBoardVO">
@@ -112,11 +121,5 @@
 		where b_no =
 		#{bNo}
 	</update>
-
-	<!-- 최대 depth 조회 -->
-	<select id="getMaxDepth" resultType="int">
-		SELECT COALESCE(MAX(depth),
-		0) FROM free_board
-	</select>
 
 </mapper>

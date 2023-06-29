@@ -22,6 +22,6 @@ public interface FreeBoardDAO {
 	int getMaxDepth();
 	List<FreeBoardVO> getReplyList(int parentNo);
 	int getTotalRowCount(PagingVO paging);
-	List<FreeBoardVO> getBoardList();
+	List<FreeBoardVO> getBoardList(PagingVO paging);
 }
 

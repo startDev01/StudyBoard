@@ -16,13 +16,8 @@ public class FreeBoardDAOImpl implements FreeBoardDAO {
 
     @Autowired
     public FreeBoardDAOImpl(SqlSession sqlSession) {
-		this.sqlSession = sqlSession;
+        this.sqlSession = sqlSession;
     }
-
-
-//    public List<FreeBoardVO> getBoardList(PagingVO pagingVO) {
-//        return sqlSession.selectList("com.study.board.dao.FreeBoardDAO.getBoardList");
-//    }
 
     @Override
     public FreeBoardVO getBoard(int bNo) {
@@ -74,13 +69,13 @@ public class FreeBoardDAOImpl implements FreeBoardDAO {
         return sqlSession.selectList("com.study.board.dao.FreeBoardDAO.getReplyList", parentNo);
     }
 
-	@Override
-	public int getTotalRowCount(PagingVO paging) {
-		return sqlSession.selectList("com.study.board.dao.FreeBoardDAO.getTotalRowCount");
+    @Override
+    public int getTotalRowCount(PagingVO paging) {
+        return sqlSession.selectOne("com.study.board.dao.FreeBoardDAO.getTotalRowCount", paging);
     }
 
     @Override
-    public List<FreeBoardVO> getBoardList() { // PagingVO 인자 제거
-        return sqlSession.selectList("com.study.board.dao.FreeBoardDAO.getBoardList");
+    public List<FreeBoardVO> getBoardList(PagingVO paging) {
+        return sqlSession.selectList("com.study.board.dao.FreeBoardDAO.getBoardList", paging);
     }
 }
