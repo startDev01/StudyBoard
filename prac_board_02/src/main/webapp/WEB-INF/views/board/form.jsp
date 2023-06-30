@@ -64,12 +64,59 @@
 		.container table td input[type="submit"]:hover {
 			background-color: #555;
 		}
+
+		.container table td .file-upload-container {
+			margin-top: 10px;
+		}
+
+		.container table td .file-upload-container input[type="file"] {
+			display: block;
+			margin-bottom: 5px;
+		}
+
+		.container table td .file-upload-container .file-upload-field {
+			position: relative;
+		}
+
+		.container table td .file-upload-container .file-upload-field .remove-file-button {
+			position: absolute;
+			top: 0;
+			right: 0;
+			padding: 5px;
+			background-color: #ccc;
+			color: #fff;
+			border: none;
+			cursor: pointer;
+		}
 	</style>
+	<script>
+		function addFileUploadField() {
+			var container = document.getElementById("file-upload-container");
+			var fileField = document.createElement("input");
+			fileField.type = "file";
+			fileField.name = "files";
+			fileField.required = true;
+
+			var fileFieldContainer = document.createElement("div");
+			fileFieldContainer.className = "file-upload-field";
+			fileFieldContainer.appendChild(fileField);
+
+			var removeButton = document.createElement("button");
+			removeButton.className = "remove-file-button";
+			removeButton.innerHTML = "삭제";
+			removeButton.addEventListener("click", function() {
+				container.removeChild(fileFieldContainer);
+			});
+
+			fileFieldContainer.appendChild(removeButton);
+			container.appendChild(fileFieldContainer);
+		}
+	</script>
 </head>
 <body>
 	<div class="container">
 		<h2>게시물 작성</h2>
-		<form action="regist.do" method="post">
+		<form action="regist.do" method="post" enctype="multipart/form-data">
 			<table>
 				<tr>
 					<th>제목</th>
@@ -93,6 +140,15 @@
 				<tr>
 					<th>내용</th>
 					<td><textarea rows="10" name="bContent"></textarea></td>
+				</tr>
+				<tr>
+					<th>첨부 파일</th>
+					<td>
+						<div id="file-upload-container" class="file-upload-container">
+							<input type="file" name="files" required>
+						</div>
+						<button type="button" onclick="addFileUploadField()">파일 추가</button>
+					</td>
 				</tr>
 				<tr>
 					<td colspan="2" style="text-align: center;">

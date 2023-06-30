@@ -4,7 +4,13 @@ import java.util.List;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.springframework.web.multipart.MultipartFile;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class FreeBoardVO {
 
 	private int bNo;
@@ -24,7 +30,9 @@ public class FreeBoardVO {
 	private int depth;		
 	private List<FreeBoardVO> replyList;
 	private String depthString;
-	
+
+	//다중 파일 업로드
+	private List<MultipartFile> fileList;	//다중 파일 업로드
 	
 	public String getDepthString() {
 		return depthString;

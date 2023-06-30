@@ -130,20 +130,23 @@
         </table>
     </div>
 	    <div style="text-align: center; margin-top: 20px;">
-	    <a href="list.do?curPage=1">&laquo;</a>
-	    <a href="list.do?curPage=${paging.curPage - 1 }">&lt;</a>
-	    <c:forEach begin="${paging.firstPage }" end="${paging.lastPage }" var="i">
-	        <a href="list.do?curPage=${i }">  
-	            <c:if test="${i eq paging.curPage }">
-	                <span style="color: red">${i }</span>
-	            </c:if>
-	            <c:if test="${i ne paging.curPage }">${i }</c:if>
-	        </a>
-	    </c:forEach>
-	    <a href="list.do?curPage=${paging.curPage + 1 }">&gt;</a>
-	    <a href="list.do?curPage=${paging.totalPageCount }">&raquo;</a>
+		    <c:if test="${paging.curPage > 1 }">
+		        <a href="list.do?curPage=${paging.curPage - 1 }">&lt;</a>
+		    </c:if>
+		    <c:forEach begin="${paging.firstPage }" end="${paging.lastPage }" var="i">
+		        <a href="list.do?curPage=${i }">  
+		            <c:if test="${i eq paging.curPage }">
+		                <span style="color: red">${i }</span>
+		            </c:if>
+		            <c:if test="${i ne paging.curPage }">${i }</c:if>
+		        </a>
+		    </c:forEach>
+		    <c:if test="${paging.curPage ne paging.totalPageCount }">
+		        <a href="list.do?curPage=${paging.curPage + 1 }">&gt;</a>
+		    </c:if>
+		    <a href="list.do?curPage=${paging.totalPageCount }">&raquo;</a>
+		</div>
 	</div>
-</div>
 <div style="text-align: center; margin-top: 20px;">
     <a href="form.do">등록하기</a>
 </div>

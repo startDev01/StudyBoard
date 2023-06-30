@@ -67,7 +67,20 @@ h1 {
 	color: #333;
 	font-weight: bold;
 	border-radius: 4px;
+	
 }
+
+.file-list {
+	margin-top: 20px;
+}
+
+.file-list a {
+	display: block;
+	margin-bottom: 10px;
+	text-decoration: none;
+	color: #333;
+}
+
 </style>
 <body>
 	<div class="container">
@@ -82,6 +95,12 @@ h1 {
 			${freeBoard.bCategory}</p>
 		<div class="content">
 			<pre>${freeBoard.bContent}</pre>
+		</div>
+		<div class="attachments">
+		    <h3>첨부파일</h3>
+		    <c:forEach items="${freeBoard.fileList}" var="file">
+		        <p>${file.originalFileName} (${file.fileSize} bytes)</p>
+		    </c:forEach>
 		</div>
 		<div class="buttons">
 			<a href="edit.do?bNo=${freeBoard.bNo}">수정</a> 

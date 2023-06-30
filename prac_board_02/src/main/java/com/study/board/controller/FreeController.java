@@ -1,8 +1,11 @@
 package com.study.board.controller;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpSession;
@@ -12,7 +15,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.study.board.dao.FreeBoardDAO;
 import com.study.board.service.FreeBoardService;
@@ -31,24 +37,24 @@ public class FreeController {
 	// 게시물 목록 출력
 	@RequestMapping("list.do")
 	public String boardList(Model model, @ModelAttribute("paging") PagingVO paging) {
-	    int totalRowCount = freeBoardDAO.getTotalRowCount(paging);
-	    paging.setTotalRowCount(totalRowCount);
-	    paging.pageSetting();
-	    List<FreeBoardVO> freeBoardList = freeBoardDAO.getBoardList(paging);
-	    List<FreeBoardVO> noticeList = new ArrayList<>();
-	    List<FreeBoardVO> normalList = new ArrayList<>();
+		int totalRowCount = freeBoardDAO.getTotalRowCount(paging);
+		paging.setTotalRowCount(totalRowCount);
+		paging.pageSetting();
+		List<FreeBoardVO> freeBoardList = freeBoardDAO.getBoardList(paging);
+		List<FreeBoardVO> noticeList = new ArrayList<>();
+		List<FreeBoardVO> normalList = new ArrayList<>();
 
-	    for (FreeBoardVO freeBoard : freeBoardList) {
-	        if ("Y".equals(freeBoard.getbNoticeYn())) {
-	            noticeList.add(freeBoard);
-	        } else {
-	            normalList.add(freeBoard);
-	        }
-	    }
+		for (FreeBoardVO freeBoard : freeBoardList) {
+			if ("Y".equals(freeBoard.getbNoticeYn())) {
+				noticeList.add(freeBoard);
+			} else {
+				normalList.add(freeBoard);
+			}
+		}
 
-	    model.addAttribute("noticeList", noticeList);
-	    model.addAttribute("normalList", normalList);
-	    return "board/boardList";
+		model.addAttribute("noticeList", noticeList);
+		model.addAttribute("normalList", normalList);
+		return "board/boardList";
 	}
 
 	// 게시물 상세 페이지 출력
@@ -85,42 +91,70 @@ public class FreeController {
 	// 게시물 삭제
 	@RequestMapping("delete.do")
 	public String boardDelete(@RequestParam("bNo") int bNo) {
-	    freeBoardDAO.deleteBoard(bNo);
-	    System.out.println("삭제되는 게시물의 번호는 : "+ bNo);
-	    return "redirect:/list.do";
+		freeBoardDAO.deleteBoard(bNo);
+		System.out.println("삭제되는 게시물의 번호는 : " + bNo);
+		return "redirect:/list.do";
 	}
 
 	// 게시물 등록
-	@RequestMapping("regist.do")
-	public String boardRegist(@ModelAttribute("freeBoard") FreeBoardVO freeBoard) throws Exception {
-	    if (freeBoard.getParentNo() != 0 && freeBoard.getParentNo() > 0) {
-	        FreeBoardVO parentBoard = freeBoardService.getBoard(freeBoard.getParentNo());
-	        int parentDepth = parentBoard.getDepth();
-	        freeBoard.setDepth(parentDepth + 1); // 수정된 부분: 답변글의 depth 설정
-	        freeBoardService.insertReplyBoard(freeBoard);
-	    } else {
-	        if ("공지".equals(freeBoard.getbCategory())) {
-	            freeBoard.setbNoticeYn("Y");
-	        } else {
-	            freeBoard.setbNoticeYn("N");
-	        }
-	        int maxDepth = freeBoardService.getMaxDepth(); // 최대 depth 가져오기
-	        freeBoard.setDepth(maxDepth + 1); // 현재 글의 depth는 최대 depth + 1로 설정
+	@RequestMapping(value = "regist.do", method = RequestMethod.POST)
+	public String boardRegist(@ModelAttribute("freeBoard") FreeBoardVO freeBoard, MultipartHttpServletRequest files)
+			throws Exception {
+		String uploadFolder = "C:\\test\\upload";
+		List<MultipartFile> list = files.getFiles("files");
+		List<Map<String, Object>> viewfileList = new ArrayList<>();
 
-	        freeBoardService.insertBoard(freeBoard); // 일반 글 작성
-	    }
-	    return "redirect:/list.do";
+		for (int i = 0; i < list.size(); i++) {
+			String fileRealName = list.get(i).getOriginalFilename();
+			long filesize = list.get(i).getSize();
+
+			System.out.println("파일명 : " + fileRealName);
+			System.out.println("파일크기 : " + filesize);
+
+			File saveFile = new File(uploadFolder + "\\" + fileRealName);
+		    Map<String, Object> fileMap = new HashMap<>();
+		    fileMap.put("originalFileName", fileRealName);
+		    fileMap.put("fileSize", filesize);
+			try {
+				list.get(i).transferTo(saveFile);
+				viewfileList.add(fileMap);
+			} catch (IllegalStateException e) {
+				e.printStackTrace();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			if (freeBoard.getParentNo() != 0 && freeBoard.getParentNo() > 0) {
+				FreeBoardVO parentBoard = freeBoardService.getBoard(freeBoard.getParentNo());
+				int parentDepth = parentBoard.getDepth();
+				freeBoard.setDepth(parentDepth + 1); // 수정된 부분: 답변글의 depth 설정
+				freeBoardService.insertReplyBoard(freeBoard);
+			} else {
+				if ("공지".equals(freeBoard.getbCategory())) {
+					freeBoard.setbNoticeYn("Y");
+				} else {
+					freeBoard.setbNoticeYn("N");
+				}
+
+				int maxDepth = freeBoardService.getMaxDepth(); // 최대 depth 가져오기
+				freeBoard.setDepth(maxDepth + 1); // 현재 글의 depth는 최대 depth + 1로 설정
+
+				freeBoardService.insertBoard(freeBoard); // 일반 글 작성
+			}
+		}
+		return "redirect:/list.do";
 	}
 
+	// 답글 등록
 	@RequestMapping("replyForm.do")
 	public String replyForm(@RequestParam(value = "parentNo", required = false) int parentNo, Model model)
-	        throws Exception {
-	    FreeBoardVO parentBoard = freeBoardService.getBoard(parentNo); // 부모 게시물 가져오기
-	    int parentDepth = parentBoard.getDepth();
-	    model.addAttribute("parentBoard", parentBoard); // 부모 게시물 정보 전달
-	    model.addAttribute("parentDepth", parentDepth + 1); // 수정된 부분: 새로운 depth 정보 전달
+			throws Exception {
+		FreeBoardVO parentBoard = freeBoardService.getBoard(parentNo); // 부모 게시물 가져오기
+		int parentDepth = parentBoard.getDepth();
+		model.addAttribute("parentBoard", parentBoard); // 부모 게시물 정보 전달
+		model.addAttribute("parentDepth", parentDepth + 1); // 수정된 부분: 새로운 depth 정보 전달
 
-	    return "board/replyForm";
+		return "board/replyForm";
 	}
 
 	// 게시물 수정본 등록
